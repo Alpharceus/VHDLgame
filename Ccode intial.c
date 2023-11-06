@@ -81,21 +81,62 @@ void approachDonor(int *funds) {
 }
 
 void makeDecision(int *funds, int *publicOpinion, int *publicTrust) {
-    // Implement decisions related to campaign strategy, dealing with lobbyists, etc.
-    // This is a placeholder for decision-making logic
+    int choice;
+    printf("Choose your campaign strategy:\n");
+    printf("1. Advertising\n2. Outreach Programs\n3. Hosting Rallies\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+
+    switch(choice) {
+        case 1:
+            *funds -= 5000;
+            *publicOpinion += 5;
+            break;
+        case 2:
+            *funds -= 3000;
+            *publicTrust += 5;
+            break;
+        case 3:
+            *funds -= 7000;
+            *publicOpinion += 10;
+            break;
+        default:
+            printf("Invalid choice. Lost a turn.\n");
+            break;
+    }
+
+    // Deal with lobbyists
+    int deal;
+    printf("A lobbyist approaches you with a proposition. Do you accept? (1 for yes, 0 for no): ");
+    scanf("%d", &deal);
+
+    if (deal) {
+        *funds += 10000; // Gain funds from lobbyists
+        *publicTrust -= 10; // Lose some public trust
+    }
 }
 
 void faceOpponent(int *publicOpinion) {
-    // Implement logic for facing opponents
-    // This is a placeholder for opponent logic
+    int smearCampaign = rollDice();
+    if (smearCampaign <= 20) { // 20% chance the opponent runs a smear campaign
+        *publicOpinion -= 20;
+        printf("Your opponent has run a smear campaign against you! Public opinion decreased.\n");
+    }
 }
 
 void dealWithMedia(int *publicOpinion) {
-    // Implement logic for dealing with the media
-    // This is a placeholder for media logic
+    int mediaEvent = rollDice();
+    if (mediaEvent <= 50) { // 50% chance the media misrepresents you
+        *publicOpinion -= 10;
+        printf("The media has misrepresented your policies! Public opinion decreased.\n");
+    }
 }
 
 void checkPublicTrust(int *publicTrust) {
-    // Implement logic for checking public trust
-    // This is a placeholder for public trust logic
+    int scandal = rollDice();
+    if (scandal <= 10) { // 10% chance of a scandal
+        *publicTrust -= 20;
+        printf("A scandal has surfaced! Public trust decreased.\n");
+    }
 }
+
