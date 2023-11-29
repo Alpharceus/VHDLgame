@@ -38,14 +38,56 @@ architecture rtl of pong_graph_st is
    constant TRUST_X_R: integer := 599;
    constant TRUST_Y_T: integer := 10;
    constant TRUST_Y_B: integer := 13;
+  
+   
+   constant ROAD1_X_L: integer := 107;
+   constant ROAD1_X_R: integer := 108;
+   constant ROAD1_Y_T: integer := 40;
+   constant ROAD1_Y_B: integer := 120;
+   
+   constant ROAD2_X_L: integer := 107;
+   constant ROAD2_X_R: integer := 108;
+   constant ROAD2_Y_T: integer := 200;
+   constant ROAD2_Y_B: integer := 280;
+   
+   constant ROAD3_X_L: integer := 107;
+   constant ROAD3_X_R: integer := 108;
+   constant ROAD3_Y_T: integer := 360;
+   constant ROAD3_Y_B: integer := 440;
+   
+   constant ROAD4_X_L: integer := 320;
+   constant ROAD4_X_R: integer := 321;
+   constant ROAD4_Y_T: integer := 120;
+   constant ROAD4_Y_B: integer := 200;
+   
+   constant ROAD5_X_L: integer := 320;
+   constant ROAD5_X_R: integer := 321;
+   constant ROAD5_Y_T: integer := 280;
+   constant ROAD5_Y_B: integer := 360;
+   
+   constant ROAD6_X_L: integer := 533;
+   constant ROAD6_X_R: integer := 534;
+   constant ROAD6_Y_T: integer := 40;
+   constant ROAD6_Y_B: integer := 120;
+   
+   constant ROAD7_X_L: integer := 533;
+   constant ROAD7_X_R: integer := 534;
+   constant ROAD7_Y_T: integer := 200;
+   constant ROAD7_Y_B: integer := 280;
+   
+   constant ROAD8_X_L: integer := 533;
+   constant ROAD8_X_R: integer := 534;
+   constant ROAD8_Y_T: integer := 360;
+   constant ROAD8_Y_B: integer := 440;
+   
 -- Paddle left, right, top, bottom and height -- left & right are constant. Top & bottom are signals to allow movement. bar_y_t driven by register below.
-   constant BAR_X_L: integer := 600;
-   constant BAR_X_R: integer := 603;
-   signal bar_y_t, bar_y_b: unsigned(9 downto 0);
-   constant BAR_Y_SIZE: integer := 72;
+   constant BAR_Y_T: integer := 440;
+   constant BAR_Y_B: integer := 445;
+   signal bar_x_l, bar_x_r: unsigned(9 downto 0);
+   constant BAR_X_SIZE: integer := 72;
 
 -- Reg to track top boundary (x position is fixed)
-   signal bar_y_reg, bar_y_next: unsigned( 9 downto 0);
+   signal bar_x_reg, bar_x_next: unsigned( 9 downto 0);
 
 -- Bar moving velocity when a button is pressed -- the amount the bar is moved.
    constant BAR_V: integer:= 10;
@@ -70,22 +112,22 @@ architecture rtl of pong_graph_st is
 -- round ball image
    type rom_type is array(0 to 7) of std_logic_vector(0 to 7);
    constant BALL_ROM: rom_type:= (
-      "00111100",
-      "01111110",
-      "11111111", 
-      "11111111", 
-      "11111111", 
-      "11111111", 
-      "01111110",
-      "00111100");
+      "00000000",
+      "00000000",
+      "00000000", 
+      "00000000", 
+      "00000000", 
+      "00000000", 
+      "00000000",
+      "00000000");
 
    signal rom_addr, rom_col: unsigned(2 downto 0);
    signal rom_data: std_logic_vector(7 downto 0);
    signal rom_bit: std_logic;
 
 -- object output signals -- new signal to indicate if scan coord is within ball
-   signal wall_on, wall2_on, bar_on, sq_ball_on, rd_ball_on,trust_on: std_logic;
-   signal wall_rgb, wall2_rgb, bar_rgb, ball_rgb, trust_rgb: std_logic_vector(2 downto 0);
+   signal wall_on, wall2_on, bar_on, sq_ball_on, rd_ball_on,trust_on,road1_on, road2_on, road3_on, road4_on, road5_on, road6_on, road7_on, road8_on: std_logic;
+   signal wall_rgb, wall2_rgb, bar_rgb, ball_rgb, trust_rgb, road1_rgb, road2_rgb, road3_rgb, road4_rgb, road5_rgb, road6_rgb, road7_rgb, road8_rgb: std_logic_vector(2 downto 0);
 
 -- ======================================================================================================
    begin
@@ -93,13 +135,13 @@ architecture rtl of pong_graph_st is
    process (clk, reset)
       begin
       if (reset = '1') then
-         bar_y_reg <= (others => '0');
+         bar_x_reg <= ("0100011100");
          ball_x_reg <= (others => '0');
          ball_y_reg <= (others => '0');
          x_delta_reg <= ("0000000100");
          y_delta_reg <= ("0000000100");
       elsif (clk'event and clk = '1') then
-         bar_y_reg <= bar_y_next;
+         bar_x_reg <= bar_x_next;
          ball_x_reg <= ball_x_next;
          ball_y_reg <= ball_y_next;
          x_delta_reg <= x_delta_next;
@@ -122,30 +164,55 @@ architecture rtl of pong_graph_st is
    wall2_on <= '1' when (WALL2_X_L <= pix_x) and (pix_x <= WALL2_X_R) else '0';
    wall2_rgb <= "000"; -- blue
 -- ======================================================================================================
+---road stripes
+   road1_on <= '1' when (ROAD1_X_L <= pix_x) and (pix_x <= ROAD1_X_R) and (ROAD1_Y_T <= pix_y) and (pix_y <= ROAD1_Y_B) else '0';
+   road1_rgb <= "000"; -- green
+   
+   road2_on <= '1' when (ROAD2_X_L <= pix_x) and (pix_x <= ROAD2_X_R) and (ROAD2_Y_T <= pix_y) and (pix_y <= ROAD2_Y_B) else '0';
+   road2_rgb <= "000"; -- green
+   
+   road3_on <= '1' when (ROAD3_X_L <= pix_x) and (pix_x <= ROAD3_X_R) and (ROAD3_Y_T <= pix_y) and (pix_y <= ROAD3_Y_B) else '0';
+   road3_rgb <= "000"; -- green
+   
+   road4_on <= '1' when (ROAD4_X_L <= pix_x) and (pix_x <= ROAD4_X_R) and (ROAD4_Y_T <= pix_y) and (pix_y <= ROAD4_Y_B) else '0';
+   road4_rgb <= "000"; -- green
+   
+   road5_on <= '1' when (ROAD5_X_L <= pix_x) and (pix_x <= ROAD5_X_R) and (ROAD5_Y_T <= pix_y) and (pix_y <= ROAD5_Y_B) else '0';
+   road5_rgb <= "000"; -- green
+   
+   road6_on <= '1' when (ROAD6_X_L <= pix_x) and (pix_x <= ROAD6_X_R) and (ROAD6_Y_T <= pix_y) and (pix_y <= ROAD6_Y_B) else '0';
+   road6_rgb <= "000"; -- green
+   
+   road7_on <= '1' when (ROAD7_X_L <= pix_x) and (pix_x <= ROAD7_X_R) and (ROAD7_Y_T <= pix_y) and (pix_y <= ROAD7_Y_B) else '0';
+   road7_rgb <= "000"; -- green
+   
+   road8_on <= '1' when (ROAD8_X_L <= pix_x) and (pix_x <= ROAD8_X_R) and (ROAD8_Y_T <= pix_y) and (pix_y <= ROAD8_Y_B) else '0';
+   road8_rgb <= "000"; -- green
+-- ======================================================================================================
 --trust bar
    trust_on <= '1' when (TRUST_X_L <= pix_x) and (pix_x <= TRUST_X_R) and (TRUST_Y_T <= pix_y) and (pix_y <= TRUST_Y_B) else '0';
-   trust_rgb <= "110"; -- green
+   trust_rgb <= "101"; -- green
 -- ======================================================================================================
 -- pixel within paddle
-   bar_y_t <= bar_y_reg;
-   bar_y_b <= bar_y_t + BAR_Y_SIZE - 1;
+   bar_x_l <= bar_x_reg;
+   bar_x_r <= bar_x_l + BAR_X_SIZE - 1;
    bar_on <= '1' when (BAR_X_L <= pix_x) and (pix_x <= BAR_X_R) and (bar_y_t <= pix_y) and (pix_y <= bar_y_b) else '0';
    bar_rgb <= "000"; -- green
 
 -- ======================================================================================================
 -- Process bar movement requests
-   process( bar_y_reg, bar_y_b, bar_y_t, refr_tick, btn)
+   process( bar_x_reg, bar_x_l, bar_x_r, refr_tick, btn)
       begin
-      bar_y_next <= bar_y_reg; -- no move
+      bar_x_next <= bar_x_reg; -- no move
       if ( refr_tick = '1' ) then
 
 -- if btn 1 pressed and paddle not at bottom yet
-         if ( btn(1) = '1' and bar_y_b < (MAX_Y - 1 - BAR_V)) then
-            bar_y_next <= bar_y_reg + BAR_V; -- move down
+         if ( btn(1) = '1' and bar_x_r < (MAX_X - 1 - BAR_V)) then
+            bar_x_next <= bar_x_reg + BAR_V; -- move down
 
 -- if btn 0 pressed and bar not at top yet
-         elsif ( btn(0) = '1' and bar_y_t > BAR_V) then
-            bar_y_next <= bar_y_reg - BAR_V; -- move up
+         elsif ( btn(0) = '1' and bar_x_l > BAR_V) then
+            bar_x_next <= bar_x_reg - BAR_V; -- move up
          end if;
       end if;
    end process;
@@ -181,7 +248,7 @@ architecture rtl of pong_graph_st is
    ball_y_next <= ball_y_reg + y_delta_reg when refr_tick = '1' else ball_y_reg;
 
 -- Set the value of the next ball position according to the boundaries.
-   process(x_delta_reg, y_delta_reg, ball_y_t, ball_x_l, ball_x_r, ball_y_t, ball_y_b, bar_y_t, bar_y_b)
+   process(x_delta_reg, y_delta_reg, ball_y_t, ball_x_l, ball_x_r, ball_y_t, ball_y_b, bar_x_l, bar_x_r)
       begin
       x_delta_next <= x_delta_reg;
       y_delta_next <= y_delta_reg;
@@ -199,10 +266,10 @@ architecture rtl of pong_graph_st is
          x_delta_next <= BALL_V_P; 
 
 -- Right corner of ball inside bar
-      elsif ((BAR_X_L <= ball_x_r) and (ball_x_r <= BAR_X_R)) then
+      elsif ((BAR_Y_B <= ball_x_r) and (ball_x_r <= BAR_Y_B)) then
 
 -- Some portion of ball hitting paddle, reverse direction
-         if ((bar_y_t <= ball_y_b) and (ball_y_t <= bar_y_b)) then
+         if ((bar_x_r <= ball_y_b) and (ball_y_t <= bar_x_r)) then
             x_delta_next <= BALL_V_N; 
          end if;
       end if;
@@ -210,7 +277,7 @@ architecture rtl of pong_graph_st is
 
 -- ======================================================================================================
 -- turn on the appropriate color depending on the current pixel position.
-   process (video_on, wall_on, wall2_on, bar_on, rd_ball_on,trust_on, wall_rgb, wall2_rgb, bar_rgb, ball_rgb,trust_rgb)
+   process (video_on, wall_on, wall2_on, bar_on, rd_ball_on,trust_on, wall_rgb, wall2_rgb, bar_rgb, ball_rgb,trust_rgb,road1_on, road2_on, road3_on, road4_on, road5_on, road6_on, road7_on, road8_on,road1_rgb, road2_rgb, road3_rgb, road4_rgb, road5_rgb, road6_rgb,road7_rgb, road8_rgb)
       begin
       if (video_on = '0') then
          graph_rgb <= "000"; -- blank
@@ -223,6 +290,22 @@ architecture rtl of pong_graph_st is
             graph_rgb <= trust_rgb;
          elsif (bar_on = '1') then
             graph_rgb <= bar_rgb;
+         elsif (road1_on = '1') then
+            graph_rgb <= road1_rgb;
+         elsif (road2_on = '1') then
+            graph_rgb <= road2_rgb;
+         elsif (road3_on = '1') then
+            graph_rgb <= road3_rgb;
+         elsif (road4_on = '1') then
+            graph_rgb <= road4_rgb;
+         elsif (road5_on = '1') then
+            graph_rgb <= road5_rgb;
+         elsif (road6_on = '1') then
+            graph_rgb <= road6_rgb;
+         elsif (road7_on = '1') then
+            graph_rgb <= road7_rgb;
+         elsif (road8_on = '1') then
+            graph_rgb <= road8_rgb;
          elsif (rd_ball_on = '1') then
             graph_rgb <= ball_rgb;
          else
